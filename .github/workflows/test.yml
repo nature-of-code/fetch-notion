@@ -1,0 +1,26 @@
+name: "Fetch from Notion action test"
+on:
+  workflow_dispatch:
+
+jobs:
+  # test action works
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run action
+        uses: ./
+        with:
+          notion-secret: ${{ secrets.NOTION_SECRET }}
+          notion-database-id: ${{ secrets.NOTION_DATABASE_ID }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: Notion - Update docs
+          signoff: false
+          branch: notion-update-docs
+          delete-branch: false
+          title: '[Notion] Update docs'

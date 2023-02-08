@@ -1,0 +1,18 @@
+name: 'Fetch Notion'
+description: 'Fetch content from a Notion database'
+inputs:
+  notion-secret:
+    description: 'access secret for notion'
+    required: true
+  notion-database-id:
+    description: 'database id of content'
+    required: true
+  output-folder:
+    description: 'content output folder'
+    default: 'content/'
+outputs:
+  summary:
+    description: 'summary of the transfer'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
