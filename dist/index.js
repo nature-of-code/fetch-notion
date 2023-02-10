@@ -16083,7 +16083,7 @@ async function main() {
       await savePage(page);
     }
 
-    const outputFolder = lib_core.getInput('output-folder');
+    const outputFolder = lib_core.getInput('output-folder') || 'content/';
 
     await io.mkdirP(outputFolder);
     await io.cp('.temp', outputFolder, {
@@ -16116,7 +16116,7 @@ async function transformPage(page) {
   });
 
   // Transform Notion content to hast
-  const pageTitle = (page.type === 'Chapter' ?? 'Chapter ') + page.title;
+  const pageTitle = (page.type === 'Chapter' ? 'Chapter ' : '') + page.title;
   const hast = fromNotion(pageContent, pageTitle);
 
   // Format using plugin
