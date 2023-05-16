@@ -46,7 +46,7 @@ export function table(block, parent) {
                     content,
                   );
                 }
-                return transformRichText(richText);
+                return transformRichText(richText, { allowHtml: true });
               }),
             ),
           ),
