@@ -1,10 +1,12 @@
 import { h } from 'hastscript';
+import { fromHtml } from 'hast-util-from-html';
 
 /**
  * @param {NotionRichText} richText
+ * @param {{allowHtml: boolean}} options
  * @returns {HastNode}
  */
-export function transformRichText(richText) {
+export function transformRichText(richText, options = {}) {
   switch (richText.type) {
     case 'text':
       const {
@@ -12,6 +14,14 @@ export function transformRichText(richText) {
         annotations,
         href,
       } = richText;
+
+      // Option: allow Html inside RichText to render
+      if (options.allowHtml === true) {
+        const { children } = fromHtml(content, { fragment: true });
+        for (let child of children) {
+          if (child.type === 'element') return children;
+        }
+      }
 
       let node = {
         type: 'text',
