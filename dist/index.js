@@ -26623,7 +26623,130 @@ function slugifyHeadingsId({ hast }) {
   return idSlugMap;
 }
 
+;// CONCATENATED MODULE: ./node_modules/hast-util-to-string/index.js
+/**
+ * @fileoverview
+ *   Get the plain-text value of a hast node.
+ * @longdescription
+ *   ## Use
+ *
+ *   ```js
+ *   import {h} from 'hastscript'
+ *   import {toString} from 'hast-util-to-string'
+ *
+ *   toString(h('p', 'Alpha'))
+ *   //=> 'Alpha'
+ *   toString(h('div', [h('b', 'Bold'), ' and ', h('i', 'italic'), '.']))
+ *   //=> 'Bold and italic.'
+ *   ```
+ *
+ *   ## API
+ *
+ *   ### `toString(node)`
+ *
+ *   Transform a node to a string.
+ */
+
+/**
+ * @typedef {import('hast').Root} Root
+ * @typedef {import('hast').Element} Element
+ * @typedef {Root|Root['children'][number]} Node
+ */
+
+/**
+ * Get the plain-text value of a hast node.
+ *
+ * @param {Node} node
+ * @returns {string}
+ */
+function hast_util_to_string_toString(node) {
+  // “The concatenation of data of all the Text node descendants of the context
+  // object, in tree order.”
+  if ('children' in node) {
+    return hast_util_to_string_all(node)
+  }
+
+  // “Context object’s data.”
+  return 'value' in node ? node.value : ''
+}
+
+/**
+ * @param {Node} node
+ * @returns {string}
+ */
+function hast_util_to_string_one(node) {
+  if (node.type === 'text') {
+    return node.value
+  }
+
+  return 'children' in node ? hast_util_to_string_all(node) : ''
+}
+
+/**
+ * @param {Root|Element} node
+ * @returns {string}
+ */
+function hast_util_to_string_all(node) {
+  let index = -1
+  /** @type {string[]} */
+  const result = []
+
+  while (++index < node.children.length) {
+    result[index] = hast_util_to_string_one(node.children[index])
+  }
+
+  return result.join('')
+}
+
+;// CONCATENATED MODULE: ./src/plugins/side-by-side-figures.js
+
+
+
+
+function mergeSideBySideFigures(tree) {
+  visit(tree, { tagName: 'div' }, (node, index, parent) => {
+    if (
+      !node.properties.className ||
+      !node.properties.className.includes('col-list')
+    )
+      return;
+
+    // Check if all the column `div`s contain only one figure element
+    for (let column of node.children) {
+      if (
+        column.children.length !== 1 ||
+        column.children[0].tagName !== 'figure'
+      ) {
+        return;
+      }
+    }
+
+    // join the content and the captions
+    const content = node.children.map((column) => {
+      return h(
+        'div',
+        column.children[0].children.filter((e) => e.tagName !== 'figcaption'),
+      );
+    });
+    const captions = node.children.map((column) => {
+      return hast_util_to_string_toString(
+        column.children[0].children.filter(
+          (e) => e.tagName === 'figcaption',
+        )[0],
+      );
+    });
+
+    const mergedElement = h('figure', [
+      h('div.col-list', content),
+      h('figcaption', captions.join(' ')),
+    ]);
+
+    parent.children[index] = mergedElement;
+  });
+}
+
 ;// CONCATENATED MODULE: ./src/main.js
+
 
 
 
@@ -26700,6 +26823,9 @@ async function transformPage(page) {
   // Transform Notion content to hast
   const pageTitle = (page.type === 'Chapter' ? 'Chapter ' : '') + page.title;
   const hast = fromNotion(pageContent, pageTitle);
+
+  // Apply post processing plugin
+  mergeSideBySideFigures(hast);
 
   // Format using plugin
   formatHast(hast);
