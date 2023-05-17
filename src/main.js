@@ -10,6 +10,7 @@ import { fromNotion } from './hast-from-notion.js';
 import { importExamples } from './import-examples.js';
 import { importImages } from './import-images.js';
 import { handlePagesInternalLinks } from './internal-links.js';
+import { mergeSideBySideFigures } from './plugins/side-by-side-figures.js';
 
 const formatHast = rehypeFormat();
 
@@ -74,6 +75,9 @@ async function transformPage(page) {
   // Transform Notion content to hast
   const pageTitle = (page.type === 'Chapter' ? 'Chapter ' : '') + page.title;
   const hast = fromNotion(pageContent, pageTitle);
+
+  // Apply post processing plugin
+  mergeSideBySideFigures(hast);
 
   // Format using plugin
   formatHast(hast);
