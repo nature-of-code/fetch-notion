@@ -8,7 +8,9 @@ export function code(block, parent) {
       class: 'codesplit',
       dataCodeLanguage: block.code.language,
     },
-    block.code.rich_text.map(transformRichText),
+    block.code.rich_text.map((text) =>
+      transformRichText(text, { wrapUnderlineBlank: true }),
+    ),
   );
   parent.children.push(node);
 
