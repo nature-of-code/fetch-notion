@@ -38,6 +38,9 @@ export function transformRichText(richText, options = {}) {
         if (annotations.code) {
           node = h('code', [node]);
         }
+        if (annotations.underline) {
+          node = h('span.blank', [node]);
+        }
       }
 
       if (href) {
