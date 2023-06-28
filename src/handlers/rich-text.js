@@ -3,7 +3,7 @@ import { fromHtml } from 'hast-util-from-html';
 
 /**
  * @param {NotionRichText} richText
- * @param {{allowHtml: boolean}} options
+ * @param {{allowHtml: boolean, wrapUnderlineBlank: boolean}} options
  * @returns {HastNode}
  */
 export function transformRichText(richText, options = {}) {
@@ -37,6 +37,14 @@ export function transformRichText(richText, options = {}) {
         }
         if (annotations.code) {
           node = h('code', [node]);
+        }
+      }
+
+      // Option: wrap underline richText in <span class="blank">
+      // This step adds mark to `fill-in-blank text`
+      if (options.wrapUnderlineBlank === true) {
+        if (annotations && annotations.underline) {
+          node = h('span.blank', [node]);
         }
       }
 
