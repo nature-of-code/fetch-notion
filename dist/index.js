@@ -24920,7 +24920,7 @@ function lib_camelcase(value) {
 
 /**
  * @param {NotionRichText} richText
- * @param {{allowHtml: boolean}} options
+ * @param {{allowHtml: boolean, wrapUnderlineBlank: boolean}} options
  * @returns {HastNode}
  */
 function transformRichText(richText, options = {}) {
@@ -24954,6 +24954,14 @@ function transformRichText(richText, options = {}) {
         }
         if (annotations.code) {
           node = h('code', [node]);
+        }
+      }
+
+      // Option: wrap underline richText in <span class="blank">
+      // This step adds mark to `fill-in-blank text`
+      if (options.wrapUnderlineBlank === true) {
+        if (annotations && annotations.underline) {
+          node = h('span.blank', [node]);
         }
       }
 
@@ -25217,7 +25225,9 @@ function code(block, parent) {
       class: 'codesplit',
       dataCodeLanguage: block.code.language,
     },
-    block.code.rich_text.map(transformRichText),
+    block.code.rich_text.map((text) =>
+      transformRichText(text, { wrapUnderlineBlank: true }),
+    ),
   );
   parent.children.push(node);
 
