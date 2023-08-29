@@ -25048,16 +25048,9 @@ function list_list(tagName) {
 
 
 function image_image(block, parent) {
-  const className = block.image.caption
-    .filter(({ annotations }) => annotations.code)
-    .map(({ plain_text }) => plain_text)
-    .join(' ');
+  const { caption } = block.image;
 
-  const caption = block.image.caption.filter(
-    ({ annotations }) => !annotations.code,
-  );
-
-  const node = h('figure', { class: className || null }, [
+  const node = h('figure', [
     h('img', {
       src: block.image[block.image.type].url,
       alt: caption.map(({ plain_text }) => plain_text).join(''),
@@ -25122,17 +25115,8 @@ function transformCallout(block) {
         h('h3', plainTextTitle),
       ]);
 
-    // Web-only content
-    case '🌐':
-      return h('div', { dataType: 'web-only' }, [
-        h('p', block.callout.rich_text.map(transformRichText)),
-      ]);
-
-    // PDF-only content
-    case '📖':
-      return h('div', { dataType: 'pdf-only' }, [
-        h('p', block.callout.rich_text.map(transformRichText)),
-      ]);
+    case '🏷️':
+      return h('div', { class: plainTextTitle }, []);
 
     default:
       console.warn('missing handler for callout:', block.callout.icon.emoji);
