@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node src/main.js",
     "build": "ncc build src/main.js -o dist",
-    "test": "c8 --check-coverage node src/lib/test/index.js"
+    "test": "c8 --check-coverage node src/test/index.js"
   },
   "keywords": [],
   "author": "",
