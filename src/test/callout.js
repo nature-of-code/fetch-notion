@@ -269,3 +269,70 @@ test('Callout: Example', (t) => {
 
   t.end();
 });
+
+test('Callout: Custom class names', (t) => {
+  t.deepEqual(
+    transform([
+      {
+        has_children: true,
+        type: 'callout',
+        children: [
+          {
+            type: 'image',
+            image: {
+              type: 'external',
+              external: {
+                url: 'https://example.com/a.jpg',
+              },
+              caption: [
+                {
+                  type: 'text',
+                  text: {
+                    content: 'hello',
+                    link: null,
+                  },
+                  annotations: {
+                    bold: false,
+                    italic: true,
+                    strikethrough: false,
+                    underline: false,
+                    code: false,
+                    color: 'default',
+                  },
+                  plain_text: 'hello',
+                  href: null,
+                },
+              ],
+            },
+          },
+        ],
+        callout: {
+          rich_text: [
+            {
+              type: 'text',
+              text: {
+                content: 'half-width-right',
+                link: null,
+              },
+              annotations: {
+                bold: false,
+                italic: false,
+                strikethrough: false,
+                underline: false,
+                code: true,
+                color: 'default',
+              },
+              plain_text: 'half-width-right',
+            },
+          ],
+          icon: { type: 'emoji', emoji: '🏷️' },
+          color: 'default',
+        },
+      },
+    ]),
+    '<div class="half-width-right"><figure><img src="https://example.com/a.jpg" alt="hello"><figcaption><em>hello</em></figcaption></figure></div>',
+    'should return a image wrapped inside a div with class name `half-width-right`',
+  );
+
+  t.end();
+});
