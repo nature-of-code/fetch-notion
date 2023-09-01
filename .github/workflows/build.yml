@@ -1,0 +1,33 @@
+name: Build script with @vercel/ncc
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build with @vercel/ncc
+        run: npm run build
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+
+          git add -A
+          git commit -m "Build script"
+
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
