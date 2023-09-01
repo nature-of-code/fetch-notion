@@ -27,17 +27,16 @@ export function mergeSideBySideFigures(tree) {
         column.children[0].children.filter((e) => e.tagName !== 'figcaption'),
       );
     });
-    const captions = node.children.map((column) => {
-      return toString(
-        column.children[0].children.filter(
-          (e) => e.tagName === 'figcaption',
-        )[0],
+    const captions = node.children.reduce((result, column) => {
+      return result.concat(
+        column.children[0].children.filter((e) => e.tagName === 'figcaption')[0]
+          .children,
       );
-    });
+    }, []);
 
     const mergedElement = h('figure', [
       h('div.col-list', content),
-      h('figcaption', captions.join(' ')),
+      h('figcaption', captions),
     ]);
 
     parent.children[index] = mergedElement;
