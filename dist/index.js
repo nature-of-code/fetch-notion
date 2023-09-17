@@ -26708,6 +26708,7 @@ async function main() {
 
     const outputFolder = lib_core.getInput('output-folder') || 'content/';
 
+    await io.rmRF(outputFolder);
     await io.mkdirP(outputFolder);
     await io.cp('.temp', outputFolder, {
       recursive: true,
