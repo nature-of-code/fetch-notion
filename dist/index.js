@@ -25164,31 +25164,39 @@ function table(block, parent) {
       tableRows.map((row) => {
         return h(
           'tr',
-          row.table_row.cells.map((cell) =>
-            h(
+          row.table_row.cells.map((cell) => {
+            const isSnippet = cell.reduce(
+              (pre, cur) => pre && cur.annotations?.code,
+              true,
+            );
+
+            // If a cell is full of inline code
+            // -> Change it to snippet
+            if (isSnippet) {
+              return h(
+                'td',
+                h(
+                  'pre',
+                  h(
+                    'code',
+                    cell
+                      .map((richText) => {
+                        richText.annotations.code = false;
+                        return richText;
+                      })
+                      .map(transformRichText),
+                  ),
+                ),
+              );
+            }
+
+            return h(
               'td',
               cell.map((richText) => {
-                if (
-                  richText.type === 'text' &&
-                  richText.annotations?.code &&
-                  richText.text.content.indexOf('//{block}') === 0
-                ) {
-                  const content = richText.text.content
-                    .split('//{block}')[1]
-                    .trim();
-                  return h(
-                    'pre',
-                    {
-                      class: 'codesplit',
-                      dataCodeLanguage: 'javascript',
-                    },
-                    content,
-                  );
-                }
                 return transformRichText(richText, { allowHtml: true });
               }),
-            ),
-          ),
+            );
+          }),
         );
       }),
     ),
