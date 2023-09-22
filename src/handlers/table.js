@@ -28,7 +28,7 @@ export function table(block, parent) {
           row.table_row.cells.map((cell) => {
             const isSnippet = cell.reduce(
               (pre, cur) => pre && cur.annotations?.code,
-              true,
+              cell.length > 0,
             );
 
             // If a cell is full of inline code
