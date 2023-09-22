@@ -24952,6 +24952,9 @@ function transformRichText(richText, options = {}) {
         if (annotations.bold) {
           node = h('strong', [node]);
         }
+        if (annotations.strikethrough) {
+          node = h('s', [node]);
+        }
         if (annotations.code) {
           node = h('code', [node]);
         }
