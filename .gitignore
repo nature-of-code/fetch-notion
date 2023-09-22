@@ -4,3 +4,5 @@
 .temp/
 coverage/
 node_modules/
+
+content/
