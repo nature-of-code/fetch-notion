@@ -25174,9 +25174,28 @@ function table(block, parent) {
         'thead',
         h(
           'tr',
-          tableHead.table_row.cells.map((cell) =>
-            h('th', cell.map(transformRichText)),
-          ),
+          tableHead.table_row.cells.map((cell) => {
+            const content = [];
+            let inlineStyles = null;
+
+            // Find custom styles in cell, e.g.`[width: 200px;]`
+            for (let richText of cell) {
+              if (richText.annotations.code) {
+                const match = /\[([\s\S]+)\]/.exec(richText.text.content);
+                if (match) {
+                  inlineStyles = match[1];
+                  continue;
+                }
+              }
+              content.push(richText);
+            }
+
+            return h(
+              'th',
+              inlineStyles ? { style: inlineStyles } : {},
+              content.map(transformRichText),
+            );
+          }),
         ),
       ),
     h(
