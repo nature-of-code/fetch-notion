@@ -40,10 +40,20 @@ export async function fetchPublishedPages(databaseId) {
     notion.databases.query({
       database_id: databaseId,
       filter: {
-        property: 'Status',
-        select: {
-          equals: 'Published',
-        },
+        or: [
+          {
+            property: 'Status',
+            select: {
+              equals: 'Published',
+            },
+          },
+          {
+            property: 'Status',
+            select: {
+              equals: 'PDF-Only',
+            },
+          },
+        ],
       },
       sorts: [
         {
@@ -60,6 +70,7 @@ export async function fetchPublishedPages(databaseId) {
     pages.push({
       id: page.id,
       title: stringifyProperty(page.properties['Title']),
+      status: stringifyProperty(page.properties['Status']),
       fileName: stringifyProperty(page.properties['File Name']),
       slug: stringifyProperty(page.properties['Slug']),
       type: stringifyProperty(page.properties['Type']),
