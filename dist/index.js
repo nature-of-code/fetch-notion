@@ -25035,9 +25035,31 @@ function quote(block, parent) {
 
 
 
+const customIndexRegex = /\[number:\s*(\d+)\;*]/;
+
 function list_list(tagName) {
   return function (block, parent) {
-    const node = h('li', block[block.type].rich_text.map(transformRichText));
+    const richText = block[block.type].rich_text;
+
+    // find if custom index exist: `[number: 5;]`
+    let customIndex = null;
+    for (let i = 0; i < richText.length; i++) {
+      if (!richText[i].annotations.code) continue;
+
+      const match = customIndexRegex.exec(richText[i].plain_text);
+      if (match) {
+        customIndex = match[1];
+        richText.splice(i, 1);
+        break;
+      }
+    }
+
+    const node = h('li', richText.map(transformRichText));
+    if (customIndex) {
+      node.properties = node.properties || {};
+      node.properties.value = customIndex;
+    }
+
     const container = h(tagName, []);
 
     const previousSibling = parent.children[parent.children.length - 1];
