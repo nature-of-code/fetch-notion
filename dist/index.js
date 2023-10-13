@@ -13883,10 +13883,20 @@ async function fetchPublishedPages(databaseId) {
     notion.databases.query({
       database_id: databaseId,
       filter: {
-        property: 'Status',
-        select: {
-          equals: 'Published',
-        },
+        or: [
+          {
+            property: 'Status',
+            select: {
+              equals: 'Published',
+            },
+          },
+          {
+            property: 'Status',
+            select: {
+              equals: 'PDF-Only',
+            },
+          },
+        ],
       },
       sorts: [
         {
@@ -13903,6 +13913,7 @@ async function fetchPublishedPages(databaseId) {
     pages.push({
       id: page.id,
       title: stringifyProperty(page.properties['Title']),
+      status: stringifyProperty(page.properties['Status']),
       fileName: stringifyProperty(page.properties['File Name']),
       slug: stringifyProperty(page.properties['Slug']),
       type: stringifyProperty(page.properties['Type']),
@@ -26768,13 +26779,15 @@ async function main() {
 }
 
 async function saveIndex(pageList) {
-  const chapters = pageList.map((page) => {
-    return {
-      title: page.title,
-      src: `./${page.fileName}.html`,
-      slug: page.slug || page.fileName,
-    };
-  });
+  const chapters = pageList
+    .filter((page) => page.status === 'Published')
+    .map((page) => {
+      return {
+        title: page.title,
+        src: `./${page.fileName}.html`,
+        slug: page.slug || page.fileName,
+      };
+    });
 
   await external_node_fs_namespaceObject.promises.writeFile('.temp/chapters.json', JSON.stringify(chapters));
 }

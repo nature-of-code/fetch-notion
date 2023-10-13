@@ -55,13 +55,15 @@ async function main() {
 }
 
 async function saveIndex(pageList) {
-  const chapters = pageList.map((page) => {
-    return {
-      title: page.title,
-      src: `./${page.fileName}.html`,
-      slug: page.slug || page.fileName,
-    };
-  });
+  const chapters = pageList
+    .filter((page) => page.status === 'Published')
+    .map((page) => {
+      return {
+        title: page.title,
+        src: `./${page.fileName}.html`,
+        slug: page.slug || page.fileName,
+      };
+    });
 
   await fs.writeFile('.temp/chapters.json', JSON.stringify(chapters));
 }
