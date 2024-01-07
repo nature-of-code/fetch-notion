@@ -25844,7 +25844,7 @@ function transformCallout(block) {
 
     // Heading 4
     case '4️⃣':
-      return h('h4', plainTextTitle);
+      return h('h4', block.callout.rich_text.map(transformRichText));
 
     default:
       console.warn('missing handler for callout:', block.callout.icon.emoji);
