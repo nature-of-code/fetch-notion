@@ -25838,8 +25838,13 @@ function transformCallout(block) {
         h('h3', plainTextTitle),
       ]);
 
+    // Custom class div
     case '🏷️':
       return h('div', { class: plainTextTitle }, []);
+
+    // Heading 4
+    case '4️⃣':
+      return h('h4', plainTextTitle);
 
     default:
       console.warn('missing handler for callout:', block.callout.icon.emoji);
