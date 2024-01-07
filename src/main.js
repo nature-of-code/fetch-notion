@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import { promises as fs } from 'node:fs';
 import { toHtml } from 'hast-util-to-html';
+import { lowerCase } from 'lodash-es';
 import rehypeFormat from 'rehype-format';
 import 'dotenv/config';
 
@@ -77,7 +78,8 @@ async function transformPage(page) {
 
   // Transform Notion content to hast
   const pageTitle = (page.type === 'Chapter' ? 'Chapter ' : '') + page.title;
-  const hast = fromNotion(pageContent, pageTitle);
+  const pageType = lowerCase(page.type);
+  const hast = fromNotion(pageContent, pageTitle, pageType);
 
   // Apply post processing plugin
   mergeSideBySideFigures(hast);

@@ -32,7 +32,7 @@ export function convert(blocks) {
   return tree.children;
 }
 
-export function fromNotion(blocks, title) {
+export function fromNotion(blocks, title, type) {
   const content = convert(blocks);
-  return h('section', { dataType: 'chapter' }, [h('h1', title), ...content]);
+  return h('section', { dataType: type }, [h('h1', title), ...content]);
 }
