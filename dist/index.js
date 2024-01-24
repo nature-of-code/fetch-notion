@@ -26869,12 +26869,13 @@ async function saveIndex(pageList) {
     .map((page) => {
       return {
         title: page.title,
+        type: lodash_es_lowerCase(page.type),
         src: `./${page.fileName}.html`,
         slug: page.slug || page.fileName,
       };
     });
 
-  await external_node_fs_namespaceObject.promises.writeFile('.temp/chapters.json', JSON.stringify(chapters));
+  await external_node_fs_namespaceObject.promises.writeFile('.temp/content.json', JSON.stringify(chapters));
 }
 
 async function transformPage(page) {

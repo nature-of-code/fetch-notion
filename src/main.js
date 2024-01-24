@@ -61,12 +61,13 @@ async function saveIndex(pageList) {
     .map((page) => {
       return {
         title: page.title,
+        type: lowerCase(page.type),
         src: `./${page.fileName}.html`,
         slug: page.slug || page.fileName,
       };
     });
 
-  await fs.writeFile('.temp/chapters.json', JSON.stringify(chapters));
+  await fs.writeFile('.temp/content.json', JSON.stringify(chapters));
 }
 
 async function transformPage(page) {
