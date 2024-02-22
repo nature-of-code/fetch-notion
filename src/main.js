@@ -12,6 +12,7 @@ import { importExamples } from './import-examples.js';
 import { importImages } from './import-images.js';
 import { handlePagesInternalLinks } from './internal-links.js';
 import { mergeSideBySideFigures } from './plugins/side-by-side-figures.js';
+import { joinAdjacentAnchors } from './plugins/adjacent-anchors.js';
 
 const formatHast = rehypeFormat();
 
@@ -84,6 +85,7 @@ async function transformPage(page) {
 
   // Apply post processing plugin
   mergeSideBySideFigures(hast);
+  joinAdjacentAnchors(hast);
 
   // Format using plugin
   formatHast(hast);
