@@ -2300,7 +2300,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _Client_auth, _Client_logLevel, _Client_logger, _Client_prefixUrl, _Client_timeoutMs, _Client_notionVersion, _Client_fetch, _Client_agent, _Client_userAgent;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const logging_1 = __nccwpck_require__(2096);
-const errors_1 = __nccwpck_require__(3714);
+const errors_1 = __nccwpck_require__(8259);
 const utils_1 = __nccwpck_require__(8769);
 const api_endpoints_1 = __nccwpck_require__(1605);
 const node_fetch_1 = __nccwpck_require__(467);
@@ -2889,7 +2889,7 @@ exports.listComments = {
 
 /***/ }),
 
-/***/ 3714:
+/***/ 8259:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -3211,7 +3211,7 @@ var Client_1 = __nccwpck_require__(6492);
 Object.defineProperty(exports, "KU", ({ enumerable: true, get: function () { return Client_1.default; } }));
 var logging_1 = __nccwpck_require__(2096);
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return logging_1.LogLevel; } });
-var errors_1 = __nccwpck_require__(3714);
+var errors_1 = __nccwpck_require__(8259);
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return errors_1.APIErrorCode; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return errors_1.ClientErrorCode; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return errors_1.APIResponseError; } });
@@ -26805,7 +26805,33 @@ function mergeSideBySideFigures(tree) {
   });
 }
 
+;// CONCATENATED MODULE: ./src/plugins/adjacent-anchors.js
+
+
+function joinAdjacentAnchors(tree) {
+  visit(tree, 'element', (node, index, parent) => {
+    if (!parent || node.tagName !== 'a') return;
+
+    let nextNode = parent.children[index + 1];
+    while (
+      nextNode &&
+      nextNode.tagName === 'a' &&
+      nextNode.properties.href === node.properties.href
+    ) {
+      // Combine children of the next node with the current node
+      node.children = [...node.children, ...nextNode.children];
+
+      // Remove the next node from the parent
+      parent.children.splice(index + 1, 1);
+
+      // Update nextNode to the new node at the current index + 1
+      nextNode = parent.children[index + 1];
+    }
+  });
+}
+
 ;// CONCATENATED MODULE: ./src/main.js
+
 
 
 
@@ -26892,6 +26918,7 @@ async function transformPage(page) {
 
   // Apply post processing plugin
   mergeSideBySideFigures(hast);
+  joinAdjacentAnchors(hast);
 
   // Format using plugin
   formatHast(hast);
