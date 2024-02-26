@@ -1,4 +1,5 @@
 import { visit } from 'unist-util-visit';
+import { toString } from 'hast-util-to-string';
 import { headingRank } from 'hast-util-heading-rank';
 import Slugger from 'github-slugger';
 
@@ -54,12 +55,7 @@ function slugifyHeadingsId({ hast }) {
   visit(hast, 'element', (node) => {
     // visit all headings from `h1` to `h6`
     if (headingRank(node)) {
-      const slug = slugger.slug(
-        node.children
-          .filter((ele) => ele.type === 'text')
-          .map((ele) => ele.value)
-          .join(''),
-      );
+      const slug = slugger.slug(toString(node));
 
       node.properties.id = slug;
 

@@ -1,4 +1,5 @@
 import { h } from 'hastscript';
+import { transformRichText } from './rich-text.js';
 
 export function heading(tagName) {
   return function (block, parent) {
@@ -11,7 +12,7 @@ export function heading(tagName) {
     const node = h(
       tagName,
       attr,
-      block[block.type].rich_text.map(({ plain_text }) => plain_text).join(''),
+      block[block.type].rich_text.map(transformRichText),
     );
     parent.children.push(node);
 
