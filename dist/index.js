@@ -15036,28 +15036,6 @@ function createAdjustMap(values) {
 
 const h = lib_core_core(property_information_html, 'div')
 
-;// CONCATENATED MODULE: ./src/handlers/heading.js
-
-
-function heading(tagName) {
-  return function (block, parent) {
-    const attr = {};
-
-    if (block.id) {
-      attr.dataNotionId = block.id.replace(/-/g, '');
-    }
-
-    const node = h(
-      tagName,
-      attr,
-      block[block.type].rich_text.map(({ plain_text }) => plain_text).join(''),
-    );
-    parent.children.push(node);
-
-    return null;
-  };
-}
-
 ;// CONCATENATED MODULE: ./node_modules/hast-util-from-html/node_modules/parse5/dist/common/unicode.js
 const UNDEFINED_CODE_POINTS = new Set([
     65534, 65535, 131070, 131071, 196606, 196607, 262142, 262143, 327678, 327679, 393214,
@@ -25681,6 +25659,29 @@ function transformRichText(richText, options = {}) {
   }
 }
 
+;// CONCATENATED MODULE: ./src/handlers/heading.js
+
+
+
+function heading(tagName) {
+  return function (block, parent) {
+    const attr = {};
+
+    if (block.id) {
+      attr.dataNotionId = block.id.replace(/-/g, '');
+    }
+
+    const node = h(
+      tagName,
+      attr,
+      block[block.type].rich_text.map(transformRichText),
+    );
+    parent.children.push(node);
+
+    return null;
+  };
+}
+
 ;// CONCATENATED MODULE: ./src/handlers/paragraph.js
 
 
@@ -26548,6 +26549,81 @@ async function importImages({ hast, slug }) {
   );
 }
 
+;// CONCATENATED MODULE: ./node_modules/hast-util-to-string/index.js
+/**
+ * @fileoverview
+ *   Get the plain-text value of a hast node.
+ * @longdescription
+ *   ## Use
+ *
+ *   ```js
+ *   import {h} from 'hastscript'
+ *   import {toString} from 'hast-util-to-string'
+ *
+ *   toString(h('p', 'Alpha'))
+ *   //=> 'Alpha'
+ *   toString(h('div', [h('b', 'Bold'), ' and ', h('i', 'italic'), '.']))
+ *   //=> 'Bold and italic.'
+ *   ```
+ *
+ *   ## API
+ *
+ *   ### `toString(node)`
+ *
+ *   Transform a node to a string.
+ */
+
+/**
+ * @typedef {import('hast').Root} Root
+ * @typedef {import('hast').Element} Element
+ * @typedef {Root|Root['children'][number]} Node
+ */
+
+/**
+ * Get the plain-text value of a hast node.
+ *
+ * @param {Node} node
+ * @returns {string}
+ */
+function hast_util_to_string_toString(node) {
+  // “The concatenation of data of all the Text node descendants of the context
+  // object, in tree order.”
+  if ('children' in node) {
+    return hast_util_to_string_all(node)
+  }
+
+  // “Context object’s data.”
+  return 'value' in node ? node.value : ''
+}
+
+/**
+ * @param {Node} node
+ * @returns {string}
+ */
+function hast_util_to_string_one(node) {
+  if (node.type === 'text') {
+    return node.value
+  }
+
+  return 'children' in node ? hast_util_to_string_all(node) : ''
+}
+
+/**
+ * @param {Root|Element} node
+ * @returns {string}
+ */
+function hast_util_to_string_all(node) {
+  let index = -1
+  /** @type {string[]} */
+  const result = []
+
+  while (++index < node.children.length) {
+    result[index] = hast_util_to_string_one(node.children[index])
+  }
+
+  return result.join('')
+}
+
 ;// CONCATENATED MODULE: ./node_modules/hast-util-heading-rank/lib/index.js
 /**
  * @typedef {import('hast').Root} Root
@@ -26666,6 +26742,7 @@ function slug (value, maintainCase) {
 
 
 
+
 const slugger = new BananaSlug();
 
 function handlePagesInternalLinks(pages) {
@@ -26718,12 +26795,7 @@ function slugifyHeadingsId({ hast }) {
   visit(hast, 'element', (node) => {
     // visit all headings from `h1` to `h6`
     if (headingRank(node)) {
-      const slug = slugger.slug(
-        node.children
-          .filter((ele) => ele.type === 'text')
-          .map((ele) => ele.value)
-          .join(''),
-      );
+      const slug = slugger.slug(hast_util_to_string_toString(node));
 
       node.properties.id = slug;
 
