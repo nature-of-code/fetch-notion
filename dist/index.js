@@ -26781,16 +26781,36 @@ function handlePagesInternalLinks(pages) {
 
       const isCurrentPage = idPath === `/${page.id.replace(/-/g, '')}`;
       const path = isCurrentPage ? '' : idPathMap[idPath] || '';
-      const anchor = idAnchorMap[idAnchor] || '';
+      const anchor = idAnchor
+        ? idAnchorMap[idAnchor] || ''
+        : `section-${path.replace('/', '')}`;
 
       // set slugified path and anchors
       node.properties.href = `${path}#${anchor}`;
+
+      // add cross reference
+      if (idAnchor) {
+        if (!node.properties.className) node.properties.className = [];
+        node.properties.className.push('page-reference');
+      }
     });
   });
 }
 
-function slugifyHeadingsId({ hast }) {
+function slugifyHeadingsId({ hast, slug: pageSlug }) {
   const idSlugMap = {};
+
+  visit(hast, { tagName: 'section' }, (node) => {
+    if (
+      node.properties.dataType !== 'page' &&
+      node.properties.dataType !== 'chapter'
+    )
+      return;
+
+    const slug = slugger.slug(`section-${pageSlug}`);
+
+    node.properties.id = slug;
+  });
 
   visit(hast, 'element', (node) => {
     // visit all headings from `h1` to `h6`
