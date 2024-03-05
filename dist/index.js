@@ -15036,6 +15036,81 @@ function createAdjustMap(values) {
 
 const h = lib_core_core(property_information_html, 'div')
 
+;// CONCATENATED MODULE: ./node_modules/hast-util-to-string/index.js
+/**
+ * @fileoverview
+ *   Get the plain-text value of a hast node.
+ * @longdescription
+ *   ## Use
+ *
+ *   ```js
+ *   import {h} from 'hastscript'
+ *   import {toString} from 'hast-util-to-string'
+ *
+ *   toString(h('p', 'Alpha'))
+ *   //=> 'Alpha'
+ *   toString(h('div', [h('b', 'Bold'), ' and ', h('i', 'italic'), '.']))
+ *   //=> 'Bold and italic.'
+ *   ```
+ *
+ *   ## API
+ *
+ *   ### `toString(node)`
+ *
+ *   Transform a node to a string.
+ */
+
+/**
+ * @typedef {import('hast').Root} Root
+ * @typedef {import('hast').Element} Element
+ * @typedef {Root|Root['children'][number]} Node
+ */
+
+/**
+ * Get the plain-text value of a hast node.
+ *
+ * @param {Node} node
+ * @returns {string}
+ */
+function hast_util_to_string_toString(node) {
+  // “The concatenation of data of all the Text node descendants of the context
+  // object, in tree order.”
+  if ('children' in node) {
+    return hast_util_to_string_all(node)
+  }
+
+  // “Context object’s data.”
+  return 'value' in node ? node.value : ''
+}
+
+/**
+ * @param {Node} node
+ * @returns {string}
+ */
+function hast_util_to_string_one(node) {
+  if (node.type === 'text') {
+    return node.value
+  }
+
+  return 'children' in node ? hast_util_to_string_all(node) : ''
+}
+
+/**
+ * @param {Root|Element} node
+ * @returns {string}
+ */
+function hast_util_to_string_all(node) {
+  let index = -1
+  /** @type {string[]} */
+  const result = []
+
+  while (++index < node.children.length) {
+    result[index] = hast_util_to_string_one(node.children[index])
+  }
+
+  return result.join('')
+}
+
 ;// CONCATENATED MODULE: ./node_modules/hast-util-from-html/node_modules/parse5/dist/common/unicode.js
 const UNDEFINED_CODE_POINTS = new Set([
     65534, 65535, 131070, 131071, 196606, 196607, 262142, 262143, 327678, 327679, 393214,
@@ -25594,6 +25669,7 @@ function lib_camelcase(value) {
 
 
 
+
 /**
  * @param {NotionRichText} richText
  * @param {{allowHtml: boolean, wrapUnderlineBlank: boolean}} options
@@ -25646,6 +25722,11 @@ function transformRichText(richText, options = {}) {
 
       if (href) {
         node = h('a', { href }, [node]);
+      }
+
+      // transform code styled <br /> into a br element
+      if (node.tagName === 'code' && /^<br\s*\/?>$/.test(hast_util_to_string_toString(node))) {
+        node = h('br', []);
       }
 
       return node;
@@ -26565,81 +26646,6 @@ async function importImages({ hast, slug }) {
       node.properties.src = relativePath;
     }),
   );
-}
-
-;// CONCATENATED MODULE: ./node_modules/hast-util-to-string/index.js
-/**
- * @fileoverview
- *   Get the plain-text value of a hast node.
- * @longdescription
- *   ## Use
- *
- *   ```js
- *   import {h} from 'hastscript'
- *   import {toString} from 'hast-util-to-string'
- *
- *   toString(h('p', 'Alpha'))
- *   //=> 'Alpha'
- *   toString(h('div', [h('b', 'Bold'), ' and ', h('i', 'italic'), '.']))
- *   //=> 'Bold and italic.'
- *   ```
- *
- *   ## API
- *
- *   ### `toString(node)`
- *
- *   Transform a node to a string.
- */
-
-/**
- * @typedef {import('hast').Root} Root
- * @typedef {import('hast').Element} Element
- * @typedef {Root|Root['children'][number]} Node
- */
-
-/**
- * Get the plain-text value of a hast node.
- *
- * @param {Node} node
- * @returns {string}
- */
-function hast_util_to_string_toString(node) {
-  // “The concatenation of data of all the Text node descendants of the context
-  // object, in tree order.”
-  if ('children' in node) {
-    return hast_util_to_string_all(node)
-  }
-
-  // “Context object’s data.”
-  return 'value' in node ? node.value : ''
-}
-
-/**
- * @param {Node} node
- * @returns {string}
- */
-function hast_util_to_string_one(node) {
-  if (node.type === 'text') {
-    return node.value
-  }
-
-  return 'children' in node ? hast_util_to_string_all(node) : ''
-}
-
-/**
- * @param {Root|Element} node
- * @returns {string}
- */
-function hast_util_to_string_all(node) {
-  let index = -1
-  /** @type {string[]} */
-  const result = []
-
-  while (++index < node.children.length) {
-    result[index] = hast_util_to_string_one(node.children[index])
-  }
-
-  return result.join('')
 }
 
 ;// CONCATENATED MODULE: ./node_modules/hast-util-heading-rank/lib/index.js
