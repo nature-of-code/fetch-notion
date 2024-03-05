@@ -1,4 +1,5 @@
 import { h } from 'hastscript';
+import { toString } from 'hast-util-to-string';
 import { fromHtml } from 'hast-util-from-html';
 
 /**
@@ -53,6 +54,11 @@ export function transformRichText(richText, options = {}) {
 
       if (href) {
         node = h('a', { href }, [node]);
+      }
+
+      // transform code styled <br /> into a br element
+      if (node.tagName === 'code' && /^<br\s*\/?>$/.test(toString(node))) {
+        node = h('br', []);
       }
 
       return node;
