@@ -25687,7 +25687,11 @@ function heading(tagName) {
 
 
 function paragraph(block, parent) {
-  const node = h('p', block[block.type].rich_text.map(transformRichText));
+  const node = h(
+    'p',
+    Object.assign({}, block.properties),
+    block[block.type].rich_text.map(transformRichText),
+  );
   parent.children.push(node);
 
   if (block.has_children) {
@@ -25807,60 +25811,74 @@ function transformCallout(block) {
       if (terms.length > 1) attributes.dataSecondary = terms[1];
       if (terms.length > 2) attributes.dataTertiary = terms[2];
 
-      return h('a', attributes);
+      return [h('a', attributes)];
 
     // Highlight
     case '💡':
-      return h('p', [
-        h('span.highlight', block.callout.rich_text.map(transformRichText)),
-      ]);
+      return [
+        h('p', [
+          h('span.highlight', block.callout.rich_text.map(transformRichText)),
+        ]),
+      ];
 
     // Note
     case '📒':
-      return h('div', { dataType: 'note', dataNotionId }, [
-        h('h3', plainTextTitle),
-      ]);
+      return [
+        h('div', { dataType: 'note', dataNotionId }, [h('h3', plainTextTitle)]),
+      ];
 
     // Exercise
     case '✏️':
-      return h('div', { dataType: 'exercise', dataNotionId }, [
-        h('h3', plainTextTitle),
-      ]);
+      return [
+        h('div', { dataType: 'exercise', dataNotionId }, [
+          h('h3', plainTextTitle),
+        ]),
+      ];
 
     // Project
     case '🦎':
-      return h('div', { dataType: 'project', dataNotionId }, [
-        h('h3', plainTextTitle),
-      ]);
+      return [
+        h('div', { dataType: 'project', dataNotionId }, [
+          h('h3', plainTextTitle),
+        ]),
+      ];
 
     // Example
     case '💻':
-      return h('div', { dataType: 'example', dataNotionId }, [
-        h('h3', plainTextTitle),
-      ]);
+      return [
+        h('div', { dataType: 'example', dataNotionId }, [
+          h('h3', plainTextTitle),
+        ]),
+      ];
 
     // Custom class div
     case '🏷️':
-      return h('div', { class: plainTextTitle }, []);
+      return [h('div', { class: plainTextTitle }, [])];
+
+    // Custom style
+    case '🎨':
+      return [null, { style: plainTextTitle }];
 
     // Heading 4
     case '4️⃣':
-      return h('h4', block.callout.rich_text.map(transformRichText));
+      return [h('h4', block.callout.rich_text.map(transformRichText))];
 
     default:
       console.warn('missing handler for callout:', block.callout.icon.emoji);
-      return null;
+      return [null];
   }
 }
 
 function callout(block, parent) {
-  const node = transformCallout(block);
-  if (!node) return null;
+  const [node, childrenProperties] = transformCallout(block);
 
-  parent.children.push(node);
+  if (node) parent.children.push(node);
 
   if (block.has_children) {
-    return block.children.map((n) => [n, node]);
+    return block.children.map((n) => [
+      Object.assign(n, { properties: childrenProperties }),
+      node || parent,
+    ]);
   }
   return null;
 }
