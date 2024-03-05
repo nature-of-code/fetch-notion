@@ -2,7 +2,11 @@ import { h } from 'hastscript';
 import { transformRichText } from './rich-text.js';
 
 export function paragraph(block, parent) {
-  const node = h('p', block[block.type].rich_text.map(transformRichText));
+  const node = h(
+    'p',
+    Object.assign({}, block.properties),
+    block[block.type].rich_text.map(transformRichText),
+  );
   parent.children.push(node);
 
   if (block.has_children) {
