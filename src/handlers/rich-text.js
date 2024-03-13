@@ -16,6 +16,9 @@ export function transformRichText(richText, options = {}) {
         href,
       } = richText;
 
+      // ignore empty rich text
+      if (!content) return null;
+
       // Option: allow Html inside RichText to render
       if (options.allowHtml === true) {
         const { children } = fromHtml(content, { fragment: true });
