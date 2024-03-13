@@ -10,7 +10,7 @@ async function downloadImage({ url, name, relativeDir }) {
 
   const response = await fetch(url);
   if (!response.ok)
-    throw new Error(`unexpected response ${response.statusText}`);
+    throw new Error(`unexpected response: ${response.statusText} accessing ${url}`);
 
   let relativePath = path.join(relativeDir, name);
 

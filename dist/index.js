@@ -25684,6 +25684,9 @@ function transformRichText(richText, options = {}) {
         href,
       } = richText;
 
+      // ignore empty rich text
+      if (!content) return null;
+
       // Option: allow Html inside RichText to render
       if (options.allowHtml === true) {
         const { children } = fromHtml(content, { fragment: true });
@@ -26604,7 +26607,7 @@ async function downloadImage({ url, name, relativeDir }) {
 
   const response = await lib(url);
   if (!response.ok)
-    throw new Error(`unexpected response ${response.statusText}`);
+    throw new Error(`unexpected response: ${response.statusText} accessing ${url}`);
 
   let relativePath = external_node_path_namespaceObject.join(relativeDir, name);
 
