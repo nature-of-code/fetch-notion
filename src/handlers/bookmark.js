@@ -21,5 +21,10 @@ export function bookmark(block, parent) {
     parent.children.push(node);
   }
 
+  // if the parent is an video link callout
+  // set the parent tag's href property
+  if (parent.properties.dataType === 'video-link')
+    parent.properties.href = block.bookmark.url;
+
   return null;
 }

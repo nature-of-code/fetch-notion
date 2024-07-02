@@ -58,6 +58,12 @@ function transformCallout(block) {
         ]),
       ];
 
+    // Video
+    case '📽️':
+      return [
+        h('div', { dataType: 'video-link', dataTitle: plainTextTitle }, []),
+      ];
+
     // Custom class div
     case '🏷️':
       return [h('div', { class: plainTextTitle }, [])];
